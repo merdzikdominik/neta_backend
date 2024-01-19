@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import SchedulerView, CreateScheduleView
+from .views import SchedulerView, CreateScheduleView, AllDatesView, ClearScheduleView
 
 urlpatterns = [
     path('', SchedulerView.as_view()),
-    path('add_holiday', CreateScheduleView.as_view(), name='add_holiday')
+    path('add_holiday', CreateScheduleView.as_view(), name='add_holiday'),
+    path('all_dates', AllDatesView.as_view(), name='all_dates'),
+    path('clear_schedule', ClearScheduleView.as_view(), name='clear_schedule'),
 ]

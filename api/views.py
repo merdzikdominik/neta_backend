@@ -36,3 +36,16 @@ class CreateScheduleView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+
+class AllDatesView(APIView):
+    def get(self, request, format=None):
+        # Pobierz wszystkie obiekty z modelu Scheduler
+        all_dates = Scheduler.objects.all()
+        serializer = SchedulerSerializer(all_dates, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ClearScheduleView(APIView):
+    def delete(self, request, format=None):
+        # Usunięcie wszystkich obiektów z modelu Scheduler
+        Scheduler.objects.all().delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
