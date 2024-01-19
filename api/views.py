@@ -1,28 +1,30 @@
-from django.shortcuts import render
-from rest_framework import generics, status
-from .models import Scheduler
-from .serializers import SchedulerSerializer, CreateScheduleSerializer
+from django.views import View
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.db import SessionStore
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+from rest_framework import status, generics
+from .models import Scheduler
+from .serializers import SchedulerSerializer, CreateScheduleSerializer
+from rest_framework.permissions import IsAuthenticated
 
 class SchedulerView(generics.ListAPIView):
     queryset = Scheduler.objects.all()
     serializer_class = SchedulerSerializer
-
-
+@method_decorator(csrf_exempt, name='dispatch')
 class CreateScheduleView(APIView):
     serializer_class = CreateScheduleSerializer
 
     def post(self, request, format=None):
-        # Pobierz host z sesji lub utwórz nową sesję
-        host = self.request.session.session_key
+        host = request.session.session_key
 
         if not host:
-            self.request.session.create()
-            host = self.request.session.session_key
+            request.session.create()
+            host = request.session.session_key
 
-        # Kopiuj dane żądania i dodaj pole 'host'
         mutable_data = request.data.copy()
         mutable_data['host'] = host
 
