@@ -6,10 +6,12 @@ from django.contrib.sessions.models import Session
 from django.contrib.sessions.backends.db import SessionStore
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status, generics, permissions
 from .models import Scheduler
-from .serializers import SchedulerSerializer, CreateScheduleSerializer
-from rest_framework.permissions import IsAuthenticated
+from .serializers import SchedulerSerializer, CreateScheduleSerializer, UserSerializer, RegisterSerializer
+from knox.models import AuthToken
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.decorators import api_view
 
 class SchedulerView(generics.ListAPIView):
     queryset = Scheduler.objects.all()
@@ -49,3 +51,25 @@ class ClearScheduleView(APIView):
         # Usunięcie wszystkich obiektów z modelu Scheduler
         Scheduler.objects.all().delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class RegisterAPI(generics.GenericAPIView):
+    serializer_class = RegisterSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        return Response({
+            'user': UserSerializer(user, context=self.get_serializer_context()).data,
+            'token': AuthToken.objects.create(user)[1]
+        })
+
+# @api_view(['POST'])
+# def register_user(request):
+#     if request.method == 'POST':
+#         serializer = UserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
