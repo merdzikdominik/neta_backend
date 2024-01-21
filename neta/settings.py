@@ -146,3 +146,7 @@ REST_FRAMEWORK = {
         'knox.auth.TokenAuthentication'
     ],
 }
+
+MIGRATION_MODULES = {
+    'knox': None
+}
