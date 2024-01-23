@@ -3,15 +3,18 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.sessions.models import Session
+from django.contrib.auth import login
 from django.contrib.sessions.backends.db import SessionStore
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import status, generics, permissions
+from rest_framework.permissions import IsAuthenticated
 from .models import Scheduler
 from .serializers import SchedulerSerializer, CreateScheduleSerializer, UserSerializer, RegisterSerializer
 from knox.models import AuthToken
-# from rest_framework.permissions import IsAuthenticated
-# from rest_framework.decorators import api_view
+from knox.views import LoginView as KnoxLoginView
+
 
 class SchedulerView(generics.ListAPIView):
     queryset = Scheduler.objects.all()
@@ -33,7 +36,6 @@ class CreateScheduleView(APIView):
         serializer = self.serializer_class(data=mutable_data)
 
         if serializer.is_valid():
-            # Utwórz nowy obiekt Scheduler
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -41,29 +43,17 @@ class CreateScheduleView(APIView):
 
 class AllDatesView(APIView):
     def get(self, request, format=None):
-        # Pobierz wszystkie obiekty z modelu Scheduler
         all_dates = Scheduler.objects.all()
         serializer = SchedulerSerializer(all_dates, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ClearScheduleView(APIView):
     def delete(self, request, format=None):
-        # Usunięcie wszystkich obiektów z modelu Scheduler
         Scheduler.objects.all().delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class RegisterAPI(generics.GenericAPIView):
     serializer_class = RegisterSerializer
-
-    # def post(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     user = serializer.save()
-    #
-    #     return Response({
-    #         'user': UserSerializer(user, context=self.get_serializer_context()).data,
-    #         'token': AuthToken.objects.create(user)[1]
-    #     })
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -73,10 +63,16 @@ class RegisterAPI(generics.GenericAPIView):
             'email': serializer.validated_data['email'],
             'password': serializer.validated_data['password'],
             'first_name': request.data.get('first_name', ''),
-            'last_name': request.data.get('last_name', '')
+            'second_name': request.data.get('second_name', ''),
+            'last_name': request.data.get('last_name', ''),
+            'birth_date': request.data.get('birth_date', ''),
+            'mobile_number': request.data.get('mobile_number', ''),
+            'age': request.data.get('age', ''),
+            'employment_start_date': request.data.get('employment_start_date', ''),
+            'employment_end_date': request.data.get('employment_end_date', ''),
+            'role': request.data.get('role', ''),
+            'education': request.data.get('education', '')
         }
-
-        # user = serializer.save()
 
         user = serializer.create(validated_data)
 
@@ -84,3 +80,77 @@ class RegisterAPI(generics.GenericAPIView):
             'user': UserSerializer(user, context=self.get_serializer_context()).data,
             'token': AuthToken.objects.create(user)[1]
         })
+
+# class LoginAPI(KnoxLoginView):
+#     permission_classes = (permissions.AllowAny,)
+#
+#     def post(self, request, format=None):
+#         serializer = AuthTokenSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#
+#         user = serializer.validated_data['user']
+#
+#         login(request, user)
+#
+#         # return super(LoginAPI, self).post(request, format=None)
+#
+#         user_data = UserSerializer(user, context=self.get_serializer_context()).data
+#         response_data = {
+#             'user': user_data,
+#             'is_superuser': user.is_superuser,
+#             'token': serializer.validated_data['token']
+#         }
+
+class LoginAPI(KnoxLoginView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data['user']
+
+        login(request, user)
+
+        # Sprawdź, czy token istnieje, jeśli tak, to go zapisz
+        token = AuthToken.objects.create(user)
+        if token:
+            response_data = {
+                'user': UserSerializer(user, context=self).data,
+                'is_superuser': user.is_superuser,
+                'token': token[1],
+            }
+        else:
+            response_data = {
+                'user': UserSerializer(user, context=self).data,
+                'is_superuser': user.is_superuser,
+            }
+
+        return Response(response_data)
+
+class UserInfoAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        # Jeśli doszło do tego miejsca, to użytkownik jest zalogowany
+        user = request.user
+
+        user_data = {
+            'id': user.id,
+            'username': user.email,
+            'first_name': user.first_name,
+            'second_name': user.second_name, # dorobic w modelu
+            'last_name': user.last_name,
+            'birth_date': user.birth_date, # dorobic w modelu
+            'mobile_number': user.mobile_number, # dorobic w modelu
+            'age': user.age, # dorobic w modelu
+            'employment_start_date': user.employment_start_date, # dorobic w modelu
+            'employment_end_date': user.employment_end_date, # dorobic w modelu
+            'role': user.role, # dorobic w modelu
+            'education': user.education, # dorobic w modelu
+            'is_superuser': user.is_superuser,
+            # Dodaj inne potrzebne informacje o użytkowniku
+
+        }
+
+        return Response(user_data)

@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'email', 'first_name', 'last_name', 'password']
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'second_name', 'birth_date', 'mobile_number', 'age', 'employment_start_date', 'employment_end_date', 'role', 'education']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -27,22 +27,14 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', '')
+            second_name=validated_data.get('second_name', ''),
+            last_name=validated_data.get('last_name', ''),
+            birth_date=validated_data.get('birth_date', None),
+            mobile_number=validated_data.get('mobile_number', ''),
+            age=validated_data.get('age', None),
+            employment_start_date=validated_data.get('employment_start_date', None),
+            employment_end_date=validated_data.get('employment_end_date', None),
+            role=validated_data.get('role', ''),
+            education=validated_data.get('education', '')
         )
         return user
-
-
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = CustomUser
-#         fields = ['username', 'email', 'password']
-#         extra_kwargs = {'password': {'write_only': True}}
-#
-#     def create(self, validated_data):
-#         user = CustomUser(
-#             username=validated_data['username'],
-#             email=validated_data['email']
-#         )
-#         user.set_password(validated_data['password'])
-#         user.save()
-#         return user

@@ -20,9 +20,7 @@ class CustomUserManager(BaseUserManager):
         user = self.model(email=email, first_name=first_name, last_name=last_name, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
-        # user = self.model(email=email, **extra_fields)
-        # user.set_password(password)
-        # user.save(using=self._db)
+
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
@@ -39,9 +37,17 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
+    second_name = models.CharField(max_length=30, blank=True, null=True)
     last_name = models.CharField(max_length=30)
+    email = models.EmailField(unique=True)
+    birth_date = models.DateField(blank=True, null=True)
+    mobile_number = models.CharField(max_length=15, blank=True, null=True)
+    age = models.IntegerField(blank=True, null=True)
+    employment_start_date = models.DateField(blank=True, null=True)
+    employment_end_date = models.DateField(blank=True, null=True)
+    role = models.CharField(max_length=30, blank=True, null=True)
+    education = models.CharField(max_length=30, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
 
