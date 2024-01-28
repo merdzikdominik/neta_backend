@@ -9,11 +9,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import status, generics, permissions
-from rest_framework.permissions import IsAuthenticated
+# from rest_framework.permissions import IsAuthenticated
 from .models import Scheduler
 from .serializers import SchedulerSerializer, CreateScheduleSerializer, UserSerializer, RegisterSerializer
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
+from knox.auth import TokenAuthentication
+
 
 
 class SchedulerView(generics.ListAPIView):
@@ -129,28 +131,10 @@ class LoginAPI(KnoxLoginView):
         return Response(response_data)
 
 class UserInfoAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication, ]
 
-    def get(self, request, format=None):
-        # Jeśli doszło do tego miejsca, to użytkownik jest zalogowany
+    def get(self, request):
         user = request.user
-
-        user_data = {
-            'id': user.id,
-            'username': user.email,
-            'first_name': user.first_name,
-            'second_name': user.second_name, # dorobic w modelu
-            'last_name': user.last_name,
-            'birth_date': user.birth_date, # dorobic w modelu
-            'mobile_number': user.mobile_number, # dorobic w modelu
-            'age': user.age, # dorobic w modelu
-            'employment_start_date': user.employment_start_date, # dorobic w modelu
-            'employment_end_date': user.employment_end_date, # dorobic w modelu
-            'role': user.role, # dorobic w modelu
-            'education': user.education, # dorobic w modelu
-            'is_superuser': user.is_superuser,
-            # Dodaj inne potrzebne informacje o użytkowniku
-
-        }
-
-        return Response(user_data)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
