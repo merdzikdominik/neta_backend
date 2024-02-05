@@ -1,22 +1,26 @@
-from django.views import View
-from django.http import JsonResponse
+from django.contrib.auth.models import User
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.sessions.models import Session
 from django.contrib.auth import login
-from django.contrib.sessions.backends.db import SessionStore
+from django.contrib.auth.tokens import default_token_generator
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import status, generics, permissions
-# from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from .models import Scheduler
-from .serializers import SchedulerSerializer, CreateScheduleSerializer, UserSerializer, RegisterSerializer
+from .serializers import (SchedulerSerializer,
+                          CreateScheduleSerializer,
+                          UserSerializer,
+                          RegisterSerializer,
+                          ChangePasswordSerializer)
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
 from knox.auth import TokenAuthentication
-
-
 
 class SchedulerView(generics.ListAPIView):
     queryset = Scheduler.objects.all()
@@ -83,26 +87,6 @@ class RegisterAPI(generics.GenericAPIView):
             'token': AuthToken.objects.create(user)[1]
         })
 
-# class LoginAPI(KnoxLoginView):
-#     permission_classes = (permissions.AllowAny,)
-#
-#     def post(self, request, format=None):
-#         serializer = AuthTokenSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#
-#         user = serializer.validated_data['user']
-#
-#         login(request, user)
-#
-#         # return super(LoginAPI, self).post(request, format=None)
-#
-#         user_data = UserSerializer(user, context=self.get_serializer_context()).data
-#         response_data = {
-#             'user': user_data,
-#             'is_superuser': user.is_superuser,
-#             'token': serializer.validated_data['token']
-#         }
-
 class LoginAPI(KnoxLoginView):
     permission_classes = (permissions.AllowAny,)
 
@@ -114,7 +98,6 @@ class LoginAPI(KnoxLoginView):
 
         login(request, user)
 
-        # Sprawdź, czy token istnieje, jeśli tak, to go zapisz
         token = AuthToken.objects.create(user)
         if token:
             response_data = {
@@ -130,11 +113,38 @@ class LoginAPI(KnoxLoginView):
 
         return Response(response_data)
 
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request, format=None):
+        serializer = ChangePasswordSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = request.user
+            old_password = serializer.validated_data.get("old_password")
+            new_password = serializer.validated_data.get("new_password")
+
+            # Sprawdź poprawność starego hasła
+            if not user.check_password(old_password):
+                return Response({"detail": "Stare hasło jest niepoprawne."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Ustaw nowe hasło i zapisz użytkownika
+            user.set_password(new_password)
+            user.save()
+
+            return Response({"detail": "Hasło zostało pomyślnie zmienione."}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class UserInfoAPI(APIView):
-    # permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication, ]
 
     def get(self, request):
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+# {
+#   "email": "dominik.merdzik@onet.pl"
+# }

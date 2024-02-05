@@ -38,3 +38,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             education=validated_data.get('education', '')
         )
         return user
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
