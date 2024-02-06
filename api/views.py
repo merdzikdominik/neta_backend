@@ -131,6 +131,9 @@ class ChangePasswordView(APIView):
             if not old_password or not new_password:
                 return Response({'error': 'Podaj stare i nowe hasło.'}, status=status.HTTP_400_BAD_REQUEST)
 
+            if not old_password and new_password:
+                return Response({'error': 'Wykryto tylko podane nowe hasło, podaj też obecne.'}, status=status.HTTP_400_BAD_REQUEST)
+
             if old_password == new_password:
                 return Response({"detail": "Nowe hasło nie może być takie samo jak stare hasło."}, status=status.HTTP_400_BAD_REQUEST)
 
