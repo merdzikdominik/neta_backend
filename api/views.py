@@ -128,7 +128,7 @@ class ChangePasswordView(APIView):
             if not user.check_password(old_password):
                 return Response({"detail": "Stare hasło jest niepoprawne."}, status=status.HTTP_400_BAD_REQUEST)
 
-            if not old_password or not new_password:
+            if not old_password and not new_password:
                 return Response({'error': 'Podaj stare i nowe hasło.'}, status=status.HTTP_400_BAD_REQUEST)
 
             if not old_password and new_password:
