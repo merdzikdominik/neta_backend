@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth import get_user_model
 from .models import Scheduler, CustomUser
 
 class SchedulerSerializer(serializers.ModelSerializer):
@@ -11,10 +13,12 @@ class CreateScheduleSerializer(serializers.ModelSerializer):
         model = Scheduler
         fields = '__all__'
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = '__all__'
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,3 +46,4 @@ class RegisterSerializer(serializers.ModelSerializer):
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+

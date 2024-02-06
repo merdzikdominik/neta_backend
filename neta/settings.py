@@ -155,12 +155,3 @@ MIGRATION_MODULES = {
 TOKEN_TTL = 3600
 
 SESSION_COOKIE_AGE = 3600
-
-FRONTEND_URL = 'http://localhost:3000'
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'amokebio1234@gmai.com'
-EMAIL_HOST_PASSWORD = 'Domciula1'

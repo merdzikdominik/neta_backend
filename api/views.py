@@ -1,11 +1,11 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import login
+from django.contrib.auth import login, get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -117,7 +117,7 @@ class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
-    def post(self, request, format=None):
+    def post(self, request):
         serializer = ChangePasswordSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -125,20 +125,24 @@ class ChangePasswordView(APIView):
             old_password = serializer.validated_data.get("old_password")
             new_password = serializer.validated_data.get("new_password")
 
-            # Sprawdź poprawność starego hasła
             if not user.check_password(old_password):
                 return Response({"detail": "Stare hasło jest niepoprawne."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Ustaw nowe hasło i zapisz użytkownika
+            if not old_password or not new_password:
+                return Response({'error': 'Podaj stare i nowe hasło.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if old_password == new_password:
+                return Response({"detail": "Nowe hasło nie może być takie samo jak stare hasło."}, status=status.HTTP_400_BAD_REQUEST)
+
             user.set_password(new_password)
             user.save()
 
             return Response({"detail": "Hasło zostało pomyślnie zmienione."}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class UserInfoAPI(APIView):
     authentication_classes = [TokenAuthentication, ]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
