@@ -12,12 +12,14 @@ from rest_framework.response import Response
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import status, generics, permissions
 from rest_framework.permissions import IsAuthenticated
-from .models import Scheduler
+from knox.views import APIView as KnoxApiView
+from .models import Scheduler, HolidayRequest
 from .serializers import (SchedulerSerializer,
                           CreateScheduleSerializer,
                           UserSerializer,
                           RegisterSerializer,
-                          ChangePasswordSerializer)
+                          ChangePasswordSerializer,
+                          HolidayRequestSerializer)
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
 from knox.auth import TokenAuthentication
@@ -152,6 +154,41 @@ class UserInfoAPI(APIView):
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-# {
-#   "email": "dominik.merdzik@onet.pl"
-# }
+class CreateHolidayRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def post(self, request, *args, **kwargs):
+        serializer = HolidayRequestSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = request.user
+
+            auth_token = AuthToken.objects.create(user)
+
+            if auth_token:
+                data = {
+                    'user': user,
+                    'start_date': serializer.validated_data.get("start_date"),
+                    'end_date': serializer.validated_data.get("end_date"),
+                    'difference_in_days': serializer.validated_data.get("difference_in_days"),
+                    'selected_holiday_type': serializer.validated_data.get("selected_holiday_type"),
+                    'message': f"Urlop zaczyna się od {serializer.validated_data.get('start_date')} i kończy {serializer.validated_data.get('end_date')}, typ urlopu: {serializer.validated_data.get('selected_holiday_type')}",
+                    'created_at': serializer.validated_data.get("created_at"),
+                    'processed': False
+                }
+
+                # Zapisz wniosek o urlop w bazie danych
+                holiday_request = HolidayRequest.objects.create(**data)
+
+                return Response(HolidayRequestSerializer(holiday_request).data, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class ListHolidayRequestsView(APIView):
+    def get(self, request, *args, **kwargs):
+        holiday_requests = HolidayRequest.objects.all()
+        serializer = HolidayRequestSerializer(holiday_requests, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

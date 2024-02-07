@@ -1,13 +1,15 @@
 from django.urls import path
 from knox import views as knox_views
-from .views import SchedulerView, \
-    CreateScheduleView, \
-    AllDatesView, \
-    ClearScheduleView, \
-    RegisterAPI, \
-    LoginAPI, \
-    UserInfoAPI, \
-    ChangePasswordView
+from .views import (SchedulerView,
+                    CreateScheduleView,
+                    AllDatesView,
+                    ClearScheduleView,
+                    RegisterAPI,
+                    LoginAPI,
+                    UserInfoAPI,
+                    ChangePasswordView,
+                    CreateHolidayRequestView,
+                    ListHolidayRequestsView)
 
 urlpatterns = [
     path('', SchedulerView.as_view()),
@@ -18,8 +20,7 @@ urlpatterns = [
     path('login', LoginAPI.as_view(), name='login'),
     path('logout', knox_views.LogoutView.as_view(), name='logout'),
     path('user', UserInfoAPI.as_view(), name='user'),
-    path('password_change', ChangePasswordView.as_view(), name='password_change')
+    path('password_change', ChangePasswordView.as_view(), name='password_change'),
+    path('create_holiday_request', CreateHolidayRequestView.as_view(), name='create_holiday_request'),
+    path('list_holiday_requests', ListHolidayRequestsView.as_view(), name='list_holiday_requests'),
 ]
-
-
-

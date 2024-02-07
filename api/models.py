@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, PermissionsMixin
+from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
+from knox.models import AuthToken
 
 class Scheduler(models.Model):
     dateFrom = models.DateField()
@@ -57,3 +59,19 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+class HolidayRequest(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    difference_in_days = models.IntegerField()
+    selected_holiday_type = models.CharField(max_length=255)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    processed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Urlop od {self.start_date} do {self.end_date} użytkownika {self.user.email}'
+
+class Token(AuthToken):
+    pass

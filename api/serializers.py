@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
-from .models import Scheduler, CustomUser
+from .models import Scheduler, CustomUser, HolidayRequest
 
 class SchedulerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,3 +47,11 @@ class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
 
+class HolidayRequestSerializer(serializers.Serializer):
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    difference_in_days = serializers.IntegerField()
+    selected_holiday_type = serializers.CharField()
+
+    def create(self, validated_data):
+        return HolidayRequest.objects.create(**validated_data)

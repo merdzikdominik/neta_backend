@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'rest_framework',
-    # 'rest_framework.authtoken',
+    'rest_framework.authtoken',
     'corsheaders',
     'knox'
 ]
@@ -55,7 +55,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    # 'knox.middleware.KnoxMiddleware',
 ]
+
+KNOX = {
+    'TOKEN_MODEL': 'api.models.AuthToken',  # Dodaj właściwą ścieżkę do swojego modelu tokena
+}
 
 ROOT_URLCONF = 'neta.urls'
 
