@@ -60,6 +60,13 @@ class HolidayRequestSerializer(serializers.Serializer):
     selected_holiday_type = serializers.CharField()
     created_at = serializers.DateTimeField(read_only=True)
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        representation['created_at'] = instance.created_at.strftime("%Y-%m-%d | %H:%M:%S")
+
+        return representation
+
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         user_instance = CustomUser.objects.get(email=user_data.get('email', ''))
