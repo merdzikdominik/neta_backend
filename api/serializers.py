@@ -58,14 +58,11 @@ class HolidayRequestSerializer(serializers.Serializer):
     end_date = serializers.DateField()
     difference_in_days = serializers.IntegerField()
     selected_holiday_type = serializers.CharField()
+    created_at = serializers.DateTimeField(read_only=True)
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
-        user_instance, created = CustomUser.objects.get_or_create(
-            first_name=user_data.get('first_name', ''),
-            last_name=user_data.get('last_name', ''),
-            email=user_data.get('email', '')
-        )
+        user_instance = CustomUser.objects.get(email=user_data.get('email', ''))
 
         holiday_request = HolidayRequest.objects.create(user=user_instance, **validated_data)
         return holiday_request

@@ -60,6 +60,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+
 class HolidayRequest(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     start_date = models.DateField()
@@ -72,6 +73,3 @@ class HolidayRequest(models.Model):
 
     def __str__(self):
         return f'Urlop od {self.start_date} do {self.end_date} użytkownika {self.user.email}'
-
-class Token(AuthToken):
-    pass
