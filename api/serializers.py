@@ -47,11 +47,25 @@ class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
 
+class CustomUserDataSerializer(serializers.Serializer):
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.EmailField()
+
 class HolidayRequestSerializer(serializers.Serializer):
+    user = CustomUserDataSerializer()
     start_date = serializers.DateField()
     end_date = serializers.DateField()
     difference_in_days = serializers.IntegerField()
     selected_holiday_type = serializers.CharField()
 
     def create(self, validated_data):
-        return HolidayRequest.objects.create(**validated_data)
+        user_data = validated_data.pop('user')
+        user_instance, created = CustomUser.objects.get_or_create(
+            first_name=user_data.get('first_name', ''),
+            last_name=user_data.get('last_name', ''),
+            email=user_data.get('email', '')
+        )
+
+        holiday_request = HolidayRequest.objects.create(user=user_instance, **validated_data)
+        return holiday_request
