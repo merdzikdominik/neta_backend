@@ -70,6 +70,7 @@ class HolidayRequest(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     processed = models.BooleanField(default=False)
+    approved = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Urlop od {self.start_date} do {self.end_date} użytkownika {self.user.email}'

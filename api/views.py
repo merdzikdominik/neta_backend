@@ -3,6 +3,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
+from django.urls import reverse
+from rest_framework.exceptions import ValidationError
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, get_user_model
@@ -25,6 +27,7 @@ from .serializers import (SchedulerSerializer,
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
 from knox.auth import TokenAuthentication
+
 
 class SchedulerView(generics.ListAPIView):
     queryset = Scheduler.objects.all()
@@ -177,19 +180,24 @@ class CreateHolidayRequestView(APIView):
                     'difference_in_days': serializer.validated_data.get("difference_in_days"),
                     'selected_holiday_type': serializer.validated_data.get("selected_holiday_type"),
                     'message': f"Urlop zaczyna się od {serializer.validated_data.get('start_date')} i kończy {serializer.validated_data.get('end_date')}, typ urlopu: {serializer.validated_data.get('selected_holiday_type')}",
+                    'approved': False
                 }
 
                 holiday_request = HolidayRequest.objects.create(**data)
 
-                return Response(HolidayRequestSerializer(holiday_request).data, status=status.HTTP_201_CREATED)
+                return Response(
+                    HolidayRequestSerializer(holiday_request).data,
+                    status=status.HTTP_201_CREATED
+                )
             else:
                 return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         except CustomUser.DoesNotExist:
-            return Response({"error": "Użytkownik o podanym adresie e-mail nie istnieje."}, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({"error": "Użytkownik o podanym adresie e-mail nie istnieje."}, status=status.HTTP_404_NOT_FOUND)
+        except ValidationError as ve:
+            return Response({"error": ve.detail}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ListHolidayRequestsView(APIView):
     def get(self, request, *args, **kwargs):

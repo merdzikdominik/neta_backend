@@ -1,3 +1,4 @@
+import uuid
 from rest_framework import serializers
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
@@ -54,18 +55,35 @@ class CustomUserDataSerializer(serializers.Serializer):
 
 class HolidayRequestSerializer(serializers.Serializer):
     user = CustomUserDataSerializer()
+    id = serializers.UUIDField(read_only=True)
     start_date = serializers.DateField()
     end_date = serializers.DateField()
     difference_in_days = serializers.IntegerField()
     selected_holiday_type = serializers.CharField()
+    message = serializers.CharField(allow_blank=True, allow_null=True)
     created_at = serializers.DateTimeField(read_only=True)
+    approved = serializers.BooleanField()
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-
+        try:
+            uuid.UUID(str(representation['id']))
+        except ValueError as e:
+            representation['id'] = None
         representation['created_at'] = instance.created_at.strftime("%Y-%m-%d | %H:%M:%S")
-
         return representation
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user_instance = CustomUser.objects.get(email=user_data.get('email', ''))
+        holiday_request = HolidayRequest.objects.create(user=user_instance, **validated_data)
+        return holiday_request
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user_instance = CustomUser.objects.get(email=user_data.get('email', ''))
+        holiday_request = HolidayRequest.objects.create(user=user_instance, **validated_data)
+        return holiday_request
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
