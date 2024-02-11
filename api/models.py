@@ -67,7 +67,7 @@ class HolidayRequest(models.Model):
     end_date = models.DateField()
     difference_in_days = models.IntegerField()
     selected_holiday_type = models.CharField(max_length=255)
-    message = models.TextField()
+    message = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     processed = models.BooleanField(default=False)
     approved = models.BooleanField(default=False)

@@ -53,6 +53,7 @@ class CustomUserDataSerializer(serializers.Serializer):
     last_name = serializers.CharField()
     email = serializers.EmailField()
 
+
 class HolidayRequestSerializer(serializers.Serializer):
     user = CustomUserDataSerializer()
     id = serializers.UUIDField(read_only=True)
@@ -60,9 +61,9 @@ class HolidayRequestSerializer(serializers.Serializer):
     end_date = serializers.DateField()
     difference_in_days = serializers.IntegerField()
     selected_holiday_type = serializers.CharField()
-    message = serializers.CharField(allow_blank=True, allow_null=True)
+    message = serializers.CharField(allow_blank=True, allow_null=True, required=False)
     created_at = serializers.DateTimeField(read_only=True)
-    approved = serializers.BooleanField()
+    approved = serializers.BooleanField(default=False)
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -76,18 +77,5 @@ class HolidayRequestSerializer(serializers.Serializer):
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         user_instance = CustomUser.objects.get(email=user_data.get('email', ''))
-        holiday_request = HolidayRequest.objects.create(user=user_instance, **validated_data)
-        return holiday_request
-
-    def create(self, validated_data):
-        user_data = validated_data.pop('user')
-        user_instance = CustomUser.objects.get(email=user_data.get('email', ''))
-        holiday_request = HolidayRequest.objects.create(user=user_instance, **validated_data)
-        return holiday_request
-
-    def create(self, validated_data):
-        user_data = validated_data.pop('user')
-        user_instance = CustomUser.objects.get(email=user_data.get('email', ''))
-
         holiday_request = HolidayRequest.objects.create(user=user_instance, **validated_data)
         return holiday_request
