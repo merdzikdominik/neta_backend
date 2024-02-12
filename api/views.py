@@ -8,6 +8,7 @@ from rest_framework.exceptions import ValidationError
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, get_user_model
+from django.http import HttpResponse
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -200,6 +201,8 @@ class CreateHolidayRequestView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ListHolidayRequestsView(APIView):
+    authentication_classes = [TokenAuthentication]
+
     def get(self, request, *args, **kwargs):
         holiday_requests = HolidayRequest.objects.all()
         serializer = HolidayRequestSerializer(holiday_requests, many=True)

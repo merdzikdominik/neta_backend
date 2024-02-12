@@ -67,11 +67,8 @@ class HolidayRequestSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        try:
-            uuid.UUID(str(representation['id']))
-        except ValueError as e:
-            representation['id'] = None
         representation['created_at'] = instance.created_at.strftime("%Y-%m-%d | %H:%M:%S")
+        representation['id'] = str(instance.id)
         return representation
 
     def create(self, validated_data):
