@@ -180,7 +180,7 @@ class CreateHolidayRequestView(APIView):
                     'end_date': serializer.validated_data.get("end_date"),
                     'difference_in_days': serializer.validated_data.get("difference_in_days"),
                     'selected_holiday_type': serializer.validated_data.get("selected_holiday_type"),
-                    'message': f"Urlop zaczyna się od {serializer.validated_data.get('start_date')} i kończy {serializer.validated_data.get('end_date')}, typ urlopu: {serializer.validated_data.get('selected_holiday_type')}",
+                    'message': f"Urlop typu {serializer.validated_data.get('selected_holiday_type')} zaczyna się od {serializer.validated_data.get('start_date')} i kończy {serializer.validated_data.get('end_date')}",
                     'approved': False
                 }
 
