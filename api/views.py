@@ -28,11 +28,13 @@ from .serializers import (SchedulerSerializer,
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
 from knox.auth import TokenAuthentication
+from django.http import Http404
 
 
 class SchedulerView(generics.ListAPIView):
     queryset = Scheduler.objects.all()
     serializer_class = SchedulerSerializer
+
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateScheduleView(APIView):
     serializer_class = CreateScheduleSerializer
@@ -206,4 +208,63 @@ class ListHolidayRequestsView(APIView):
     def get(self, request, *args, **kwargs):
         holiday_requests = HolidayRequest.objects.all()
         serializer = HolidayRequestSerializer(holiday_requests, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserHolidayRequestsView(generics.ListAPIView):
+    serializer_class = HolidayRequestSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        print("Current User:", user)  # Debugging line
+        return HolidayRequest.objects.filter(user=user)
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(user=user)
+
+
+class ApproveHolidayRequestView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_object(self, pk):
+        try:
+            return HolidayRequest.objects.get(pk=pk)
+        except HolidayRequest.DoesNotExist:
+            raise Http404
+
+    def patch(self, request, pk):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+        holiday_request = self.get_object(pk)
+
+        if holiday_request.approved:
+            return Response({'detail': 'Holiday request already approved.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        holiday_request.approved = True
+        holiday_request.save()
+
+        serializer = HolidayRequestSerializer(holiday_request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RejectHolidayRequestView(APIView):
+    def get_object(self, pk):
+        try:
+            return HolidayRequest.objects.get(pk=pk)
+        except HolidayRequest.DoesNotExist:
+            raise Http404
+
+    def patch(self, request, pk):
+        holiday_request = self.get_object(pk)
+
+        if not holiday_request.approved:
+            return Response({'detail': 'Holiday request already rejected.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        holiday_request.approved = False
+        holiday_request.save()
+
+        serializer = HolidayRequestSerializer(holiday_request)
         return Response(serializer.data, status=status.HTTP_200_OK)
