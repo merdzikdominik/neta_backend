@@ -251,6 +251,8 @@ class ApproveHolidayRequestView(APIView):
 
 
 class RejectHolidayRequestView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def get_object(self, pk):
         try:
             return HolidayRequest.objects.get(pk=pk)
