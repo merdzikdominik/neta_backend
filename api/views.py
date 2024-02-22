@@ -4,6 +4,7 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse
+from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -161,6 +162,12 @@ class UserInfoAPI(APIView):
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class AllUsersAPI(ListAPIView):
+    authentication_classes = [TokenAuthentication, ]
+    permission_classes = [IsAuthenticated]
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
 
 class CreateHolidayRequestView(APIView):
     permission_classes = [IsAuthenticated]
