@@ -74,3 +74,11 @@ class HolidayRequest(models.Model):
 
     def __str__(self):
         return f'Urlop od {self.start_date} do {self.end_date} użytkownika {self.user.email}'
+
+
+class HolidayType(models.Model):
+    id = models.CharField(max_length=2, primary_key=True)
+    label = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.label

@@ -17,14 +17,15 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import status, generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from knox.views import APIView as KnoxApiView
-from .models import Scheduler, HolidayRequest, CustomUser
+from .models import Scheduler, HolidayRequest, CustomUser, HolidayType
 from .serializers import (SchedulerSerializer,
                           CreateScheduleSerializer,
                           UserSerializer,
                           RegisterSerializer,
                           ChangePasswordSerializer,
                           HolidayRequestSerializer,
-                          CustomUserDataSerializer
+                          CustomUserDataSerializer,
+                          HolidayTypeSerializer
                           )
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
@@ -277,3 +278,30 @@ class RejectHolidayRequestView(APIView):
 
         serializer = HolidayRequestSerializer(holiday_request)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class HolidayTypeView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self, request, format=None):
+        all_holiday_types = HolidayType.objects.all()
+        serializer = HolidayTypeSerializer(all_holiday_types, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        serializer = HolidayTypeSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, format=None):
+        try:
+            holiday_type_id = request.data.get('id')
+            holiday_type = HolidayType.objects.get(id=holiday_type_id)
+            holiday_type.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except HolidayType.DoesNotExist:
+            return Response({"error": "HolidayType not found"}, status=status.HTTP_404_NOT_FOUND)
