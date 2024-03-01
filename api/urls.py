@@ -14,7 +14,8 @@ from .views import (SchedulerView,
                     UserHolidayRequestsView,
                     ApproveHolidayRequestView,
                     RejectHolidayRequestView,
-                    HolidayTypeView)
+                    HolidayTypeView,
+                    NotificationView)
 
 urlpatterns = [
     path('', SchedulerView.as_view()),
@@ -32,5 +33,6 @@ urlpatterns = [
     path('user_holiday_requests', UserHolidayRequestsView.as_view(), name='user_holiday_requests'),
     path('approve_holiday_request/<str:pk>', ApproveHolidayRequestView.as_view(), name='approve_holiday_request'),
     path('reject_holiday_request/<str:pk>', RejectHolidayRequestView.as_view(), name='reject_holiday_request'),
-    path('all_holiday_types', HolidayTypeView.as_view(), name='all_holiday_types')
+    path('all_holiday_types', HolidayTypeView.as_view(), name='all_holiday_types'),
+    path('all_notifications', NotificationView.as_view(), name='all_notifications')
 ]

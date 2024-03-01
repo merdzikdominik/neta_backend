@@ -17,7 +17,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import status, generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from knox.views import APIView as KnoxApiView
-from .models import Scheduler, HolidayRequest, CustomUser, HolidayType
+from .models import Scheduler, HolidayRequest, CustomUser, HolidayType, Notification
 from .serializers import (SchedulerSerializer,
                           CreateScheduleSerializer,
                           UserSerializer,
@@ -25,7 +25,8 @@ from .serializers import (SchedulerSerializer,
                           ChangePasswordSerializer,
                           HolidayRequestSerializer,
                           CustomUserDataSerializer,
-                          HolidayTypeSerializer
+                          HolidayTypeSerializer,
+                          NotificationSerializer
                           )
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
@@ -305,3 +306,21 @@ class HolidayTypeView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except HolidayType.DoesNotExist:
             return Response({"error": "HolidayType not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class NotificationView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        serializer = NotificationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, format=None):
+        all_notifications = Notification.objects.all()
+        serializer = NotificationSerializer(all_notifications, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

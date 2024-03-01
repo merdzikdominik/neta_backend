@@ -2,7 +2,7 @@ import uuid
 from rest_framework import serializers
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
-from .models import Scheduler, CustomUser, HolidayRequest, HolidayType
+from .models import Scheduler, CustomUser, HolidayRequest, HolidayType, Notification
 
 class SchedulerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -81,4 +81,10 @@ class HolidayRequestSerializer(serializers.Serializer):
 class HolidayTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = HolidayType
+        fields = '__all__'
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
         fields = '__all__'
