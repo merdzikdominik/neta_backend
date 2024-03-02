@@ -85,7 +85,7 @@ class HolidayType(models.Model):
 
 
 class Notification(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.CharField(max_length=36, primary_key=True)
     label = models.CharField(max_length=255)
 
     def __str__(self):
