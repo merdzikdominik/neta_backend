@@ -17,7 +17,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import status, generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from knox.views import APIView as KnoxApiView
-from .models import Scheduler, HolidayRequest, CustomUser, HolidayType, Notification
+from .models import Scheduler, HolidayRequest, CustomUser, HolidayType, Notification, HolidayPlan
 from .serializers import (SchedulerSerializer,
                           CreateScheduleSerializer,
                           UserSerializer,
@@ -26,7 +26,8 @@ from .serializers import (SchedulerSerializer,
                           HolidayRequestSerializer,
                           CustomUserDataSerializer,
                           HolidayTypeSerializer,
-                          NotificationSerializer
+                          NotificationSerializer,
+                          HolidayPlanSerializer
                           )
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
@@ -61,6 +62,8 @@ class CreateScheduleView(APIView):
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
 class AllDatesView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
         all_dates = Scheduler.objects.all()
         serializer = SchedulerSerializer(all_dates, many=True)
@@ -70,6 +73,26 @@ class ClearScheduleView(APIView):
     def delete(self, request, format=None):
         Scheduler.objects.all().delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class HolidayPlansView(APIView):
+    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    def get(self, request, format=None):
+        all_dates = HolidayPlan.objects.all()
+        serializer = HolidayPlanSerializer(all_dates, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, format=None):
+        serializer = HolidayPlanSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+from rest_framework.authtoken.models import Token
 
 class RegisterAPI(generics.GenericAPIView):
     serializer_class = RegisterSerializer
@@ -90,7 +113,24 @@ class RegisterAPI(generics.GenericAPIView):
             'employment_start_date': request.data.get('employment_start_date', ''),
             'employment_end_date': request.data.get('employment_end_date', ''),
             'role': request.data.get('role', ''),
-            'education': request.data.get('education', '')
+            'education': request.data.get('education', ''),
+            'user_residence_data': request.data.get('user_residence_data', ''),
+            'correspondence_address': request.data.get('correspondence_address', ''),
+            'tax_office': request.data.get('tax_office', ''),
+            'annual_settlement_address': request.data.get('annual_settlement_address', ''),
+            'nfz_branch': request.data.get('nfz_branch', ''),
+            'id_data': request.data.get('id_data', ''),
+            'id_given_by': request.data.get('id_given_by', ''),
+            'id_date': request.data.get('id_date', ''),
+            'city': request.data.get('city', ''),
+            'postal_code': request.data.get('postal_code', ''),
+            'post': request.data.get('post', ''),
+            'municipal_commune': request.data.get('municipal_commune', ''),
+            'voivodeship': request.data.get('voivodeship', ''),
+            'country': request.data.get('country', ''),
+            'street': request.data.get('street', ''),
+            'house_number': request.data.get('house_number', ''),
+            'flat_number': request.data.get('flat_number', '')
         }
 
         user = serializer.create(validated_data)
@@ -99,6 +139,7 @@ class RegisterAPI(generics.GenericAPIView):
             'user': UserSerializer(user, context=self.get_serializer_context()).data,
             'token': AuthToken.objects.create(user)[1]
         })
+
 
 class LoginAPI(KnoxLoginView):
     permission_classes = (permissions.AllowAny,)
@@ -192,7 +233,8 @@ class CreateHolidayRequestView(APIView):
                     'difference_in_days': serializer.validated_data.get("difference_in_days"),
                     'selected_holiday_type': serializer.validated_data.get("selected_holiday_type"),
                     'message': f"Urlop typu {serializer.validated_data.get('selected_holiday_type')} zaczyna się od {serializer.validated_data.get('start_date')} i kończy {serializer.validated_data.get('end_date')}",
-                    'approved': False
+                    'approved': False,
+                    'color_hex': serializer.validated_data.get("color_hex", "")
                 }
 
                 holiday_request = HolidayRequest.objects.create(**data)
@@ -218,6 +260,15 @@ class ListHolidayRequestsView(APIView):
         holiday_requests = HolidayRequest.objects.all()
         serializer = HolidayRequestSerializer(holiday_requests, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ApprovedHolidayRequestsView(generics.ListAPIView):
+    serializer_class = HolidayRequestSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        approved_requests = HolidayRequest.objects.filter(approved=True)
+        return approved_requests
 
 
 class UserHolidayRequestsView(generics.ListAPIView):

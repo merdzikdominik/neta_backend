@@ -13,6 +13,14 @@ class Scheduler(models.Model):
         return f'Urlop od {self.dateFrom} do {self.dateTo}'
 
 
+class HolidayPlan(models.Model):
+    dateFrom = models.DateField()
+    dateTo = models.DateField()
+
+    def __str__(self):
+        return f"Okres planu urlopowego: {self.dateFrom} do {self.dateTo}"
+
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         email = self.normalize_email(email)
@@ -37,7 +45,6 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30)
     second_name = models.CharField(max_length=30, blank=True, null=True)
@@ -52,6 +59,23 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     education = models.CharField(max_length=30, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
+    user_residence_data = models.JSONField(blank=True, null=True)
+    correspondence_address = models.CharField(max_length=100, blank=True, null=True)
+    tax_office = models.CharField(max_length=100, blank=True, null=True)
+    annual_settlement_address = models.CharField(max_length=100, blank=True, null=True)
+    nfz_branch = models.CharField(max_length=100, blank=True, null=True)
+    id_data = models.CharField(max_length=100, blank=True, null=True)
+    id_given_by = models.CharField(max_length=100, blank=True, null=True)
+    id_date = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    postalCode = models.CharField(max_length=100, blank=True, null=True)
+    post = models.CharField(max_length=100, blank=True, null=True)
+    municipalCommune = models.CharField(max_length=100, blank=True, null=True)
+    voivodeship = models.CharField(max_length=100, blank=True, null=True)
+    country = models.CharField(max_length=50, blank=True, null=True)
+    street = models.CharField(max_length=100, blank=True, null=True)
+    house_number = models.CharField(max_length=100, blank=True, null=True)
+    flat_number = models.CharField(max_length=100, blank=True, null=True)
 
     objects = CustomUserManager()
 
@@ -71,6 +95,7 @@ class HolidayRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     processed = models.BooleanField(default=False)
     approved = models.BooleanField(default=False)
+    color_hex = models.CharField(max_length=7, blank=True, null=True)
 
     def __str__(self):
         return f'Urlop od {self.start_date} do {self.end_date} użytkownika {self.user.email}'
