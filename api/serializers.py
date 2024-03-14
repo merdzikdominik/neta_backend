@@ -31,7 +31,36 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'second_name', 'birth_date', 'mobile_number', 'age', 'employment_start_date', 'employment_end_date', 'role', 'education', 'user_residence_data', 'correspondence_address', 'tax_office', 'annual_settlement_address', 'nfz_branch', 'id_data', 'id_given_by', 'id_date']
+        fields = ['id',
+                  'first_name',
+                  'last_name',
+                  'email',
+                  'password',
+                  'second_name',
+                  'birth_date',
+                  'mobile_number',
+                  'age',
+                  'employment_start_date',
+                  'employment_end_date',
+                  'role',
+                  'education',
+                  'user_residence_data',
+                  'correspondence_address',
+                  'tax_office',
+                  'annual_settlement_address',
+                  'nfz_branch',
+                  'id_data',
+                  'id_given_by',
+                  'id_date',
+                  'city',
+                  'postal_code',
+                  'post',
+                  'municipal_commune',
+                  'voivodeship',
+                  'country',
+                  'street',
+                  'house_number',
+                  'flat_number']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
