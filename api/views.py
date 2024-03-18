@@ -108,13 +108,12 @@ class RegisterAPI(generics.GenericAPIView):
             'second_name': request.data.get('second_name', ''),
             'last_name': request.data.get('last_name', ''),
             'birth_date': request.data.get('birth_date', ''),
-            'mobile_number': request.data.get('mobile_number', ''),
             'age': request.data.get('age', ''),
             'employment_start_date': request.data.get('employment_start_date', ''),
             'employment_end_date': request.data.get('employment_end_date', ''),
             'role': request.data.get('role', ''),
             'education': request.data.get('education', ''),
-            'user_residence_data': request.data.get('user_residence_data', ''),
+            # 'user_residence_data': request.data.get('user_residence_data', ''),
             'correspondence_address': request.data.get('correspondence_address', ''),
             'tax_office': request.data.get('tax_office', ''),
             'annual_settlement_address': request.data.get('annual_settlement_address', ''),
@@ -122,15 +121,36 @@ class RegisterAPI(generics.GenericAPIView):
             'id_data': request.data.get('id_data', ''),
             'id_given_by': request.data.get('id_given_by', ''),
             'id_date': request.data.get('id_date', ''),
-            'city': request.data.get('city', ''),
-            'postal_code': request.data.get('postal_code', ''),
-            'post': request.data.get('post', ''),
-            'municipal_commune': request.data.get('municipal_commune', ''),
-            'voivodeship': request.data.get('voivodeship', ''),
-            'country': request.data.get('country', ''),
-            'street': request.data.get('street', ''),
-            'house_number': request.data.get('house_number', ''),
-            'flat_number': request.data.get('flat_number', '')
+            'mobile_number_permanent_residence': request.data.get('mobile_number_permanent_residence', ''),
+            'city_permanent_residence': request.data.get('city_permanent_residence', ''),
+            'postal_code_permanent_residence': request.data.get('postal_code_permanent_residence', ''),
+            'post_permanent_residence': request.data.get('post_permanent_residence', ''),
+            'municipal_commune_permanent_residence': request.data.get('municipal_commune_permanent_residence', ''),
+            'voivodeship_permanent_residence': request.data.get('voivodeship_permanent_residence', ''),
+            'country_permanent_residence': request.data.get('country_permanent_residence', ''),
+            'street_permanent_residence': request.data.get('street_permanent_residence', ''),
+            'house_number_permanent_residence': request.data.get('house_number_permanent_residence', ''),
+            'flat_number_permanent_residence': request.data.get('flat_number_permanent_residence', ''),
+            'mobile_number_second_residence': request.data.get('mobile_number_second_residence', ''),
+            'city_second_residence': request.data.get('city_second_residence', ''),
+            'postal_code_second_residence': request.data.get('postal_code_second_residence', ''),
+            'post_second_residence': request.data.get('post_second_residence', ''),
+            'municipal_commune_second_residence': request.data.get('municipal_commune_second_residence', ''),
+            'voivodeship_second_residence': request.data.get('voivodeship_second_residence', ''),
+            'country_second_residence': request.data.get('country_second_residence', ''),
+            'street_second_residence': request.data.get('street_second_residence', ''),
+            'house_number_second_residence': request.data.get('house_number_second_residence', ''),
+            'flat_number_second_residence': request.data.get('flat_number_second_residence', ''),
+            'mobile_number_correspondence': request.data.get('mobile_number_correspondence', ''),
+            'city_correspondence': request.data.get('city_correspondence', ''),
+            'postal_code_correspondence': request.data.get('postal_code_correspondence', ''),
+            'post_correspondence': request.data.get('post_correspondence', ''),
+            'municipal_commune_correspondence': request.data.get('municipal_commune_correspondence', ''),
+            'voivodeship_correspondence': request.data.get('voivodeship_correspondence', ''),
+            'country_correspondence': request.data.get('country_correspondence', ''),
+            'street_correspondence': request.data.get('street_correspondence', ''),
+            'house_number_correspondence': request.data.get('house_number_correspondence', ''),
+            'flat_number_correspondence': request.data.get('flat_number_correspondence', '')
         }
 
         user = serializer.create(validated_data)
@@ -208,7 +228,7 @@ class UserInfoAPI(APIView):
 
 class AllUsersAPI(ListAPIView):
     authentication_classes = [TokenAuthentication, ]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
 
