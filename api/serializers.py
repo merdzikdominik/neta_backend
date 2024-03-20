@@ -2,7 +2,7 @@ import uuid
 from rest_framework import serializers
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.auth import get_user_model
-from .models import Scheduler, CustomUser, HolidayRequest, HolidayType, Notification, HolidayPlan
+from .models import Scheduler, CustomUser, HolidayRequest, HolidayType, Notification, HolidayPlan, DataChangeRequest
 
 class SchedulerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -186,3 +186,72 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = '__all__'
+
+
+class DataChangeRequestSerializer(serializers.Serializer):
+    user = CustomUserDataSerializer()
+    id = serializers.UUIDField(read_only=True)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['id'] = str(instance.id)
+        return representation
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user_instance = CustomUser.objects.get(email=user_data.get('email', ''))
+        data_change_request = DataChangeRequest.objects.create(user=user_instance, **validated_data)
+        return data_change_request
+
+class DataChangeRequestSerializer(serializers.Serializer):
+    user = CustomUserDataSerializer()
+    id = serializers.UUIDField(read_only=True)
+    surname = serializers.CharField()
+    # city_permanent_residence = serializers.CharField()
+    # postal_code_permanent_residence = serializers.CharField()
+    # post_permanent_residence = serializers.CharField()
+    # municipal_commune_permanent_residence = serializers.CharField()
+    # voivodeship_permanent_residence = serializers.CharField()
+    # country_permanent_residence = serializers.CharField()
+    # street_permanent_residence = serializers.CharField()
+    # house_number_permanent_residence = serializers.CharField()
+    # flat_number_permanent_residence = serializers.CharField()
+    # mobile_number_permanent_residence = serializers.CharField()
+    # city_second_residence = serializers.CharField()
+    # postal_code_second_residence = serializers.CharField()
+    # post_second_residence = serializers.CharField()
+    # municipal_commune_second_residence = serializers.CharField()
+    # voivodeship_second_residence = serializers.CharField()
+    # country_second_residence = serializers.CharField()
+    # street_second_residence = serializers.CharField()
+    # house_number_second_residence = serializers.CharField()
+    # flat_number_second_residence = serializers.CharField()
+    # mobile_number_second_residence = serializers.CharField()
+    # city_correspondence_residence = serializers.CharField()
+    # postal_code_correspondence_residence = serializers.CharField()
+    # post_correspondence_residence = serializers.CharField()
+    # municipal_commune_correspondence_residence = serializers.CharField()
+    # voivodeship_correspondence_residence = serializers.CharField()
+    # country_correspondence_residence = serializers.CharField()
+    # street_correspondence_residence = serializers.CharField()
+    # house_number_correspondence_residence = serializers.CharField()
+    # flat_number_correspondence_residence = serializers.CharField()
+    # mobile_number_correspondence_residence = serializers.CharField()
+    # correspondence_address = serializers.CharField()
+    # taxOffice = serializers.CharField()
+    # annual_settlement_address = serializers.CharField()
+    nfz_branch = serializers.CharField()
+    id_data = serializers.CharField()
+    id_given_by = serializers.CharField()
+    id_date = serializers.CharField()
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['id'] = str(instance.id)
+        return representation
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user_instance = CustomUser.objects.get(email=user_data.get('email', ''))
+        data_change_request = DataChangeRequest.objects.create(user=user_instance, **validated_data)
+        return data_change_request
