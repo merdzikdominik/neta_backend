@@ -428,50 +428,50 @@ class CreateDataChangeRequestView(APIView):
                 data = {
                     'user': user_instance,
                     'surname': serializer.validated_data.get("surname"),
-                    # 'city_permanent_residence': serializer.validated_data.get("city_permanent_residence"),
-                    # 'postal_code_permanent_residence': serializer.validated_data.get("postal_code_permanent_residence"),
-                    # 'post_permanent_residence': serializer.validated_data.get("post_permanent_residence"),
-                    # 'municipal_commune_permanent_residence': serializer.validated_data.get(
-                    #     "municipal_commune_permanent_residence"),
-                    # 'voivodeship_permanent_residence': serializer.validated_data.get("voivodeship_permanent_residence"),
-                    # 'country_permanent_residence': serializer.validated_data.get("country_permanent_residence"),
-                    # 'street_permanent_residence': serializer.validated_data.get("street_permanent_residence"),
-                    # 'house_number_permanent_residence': serializer.validated_data.get(
-                    #     "house_number_permanent_residence"),
-                    # 'flat_number_permanent_residence': serializer.validated_data.get("flat_number_permanent_residence"),
-                    # 'mobile_number_permanent_residence': serializer.validated_data.get(
-                    #     "mobile_number_permanent_residence"),
-                    # 'city_second_residence': serializer.validated_data.get("city_second_residence"),
-                    # 'postal_code_second_residence': serializer.validated_data.get("postal_code_second_residence"),
-                    # 'post_second_residence': serializer.validated_data.get("post_second_residence"),
-                    # 'municipal_commune_second_residence': serializer.validated_data.get(
-                    #     "municipal_commune_second_residence"),
-                    # 'voivodeship_second_residence': serializer.validated_data.get("voivodeship_second_residence"),
-                    # 'country_second_residence': serializer.validated_data.get("country_second_residence"),
-                    # 'street_second_residence': serializer.validated_data.get("street_second_residence"),
-                    # 'house_number_second_residence': serializer.validated_data.get("house_number_second_residence"),
-                    # 'flat_number_second_residence': serializer.validated_data.get("flat_number_second_residence"),
-                    # 'mobile_number_second_residence': serializer.validated_data.get("mobile_number_second_residence"),
-                    # 'city_correspondence_residence': serializer.validated_data.get("city_correspondence_residence"),
-                    # 'postal_code_correspondence_residence': serializer.validated_data.get(
-                    #     "postal_code_correspondence_residence"),
-                    # 'post_correspondence_residence': serializer.validated_data.get("post_correspondence_residence"),
-                    # 'municipal_commune_correspondence_residence': serializer.validated_data.get(
-                    #     "municipal_commune_correspondence_residence"),
-                    # 'voivodeship_correspondence_residence': serializer.validated_data.get(
-                    #     "voivodeship_correspondence_residence"),
-                    # 'country_correspondence_residence': serializer.validated_data.get(
-                    #     "country_correspondence_residence"),
-                    # 'street_correspondence_residence': serializer.validated_data.get("street_correspondence_residence"),
-                    # 'house_number_correspondence_residence': serializer.validated_data.get(
-                    #     "house_number_correspondence_residence"),
-                    # 'flat_number_correspondence_residence': serializer.validated_data.get(
-                    #     "flat_number_correspondence_residence"),
-                    # 'mobile_number_correspondence_residence': serializer.validated_data.get(
-                    #     "mobile_number_correspondence_residence"),
-                    # 'correspondence_address': serializer.validated_data.get("correspondence_address"),
-                    # 'taxOffice': serializer.validated_data.get("taxOffice"),
-                    # 'annual_settlement_address': serializer.validated_data.get("annual_settlement_address"),
+                    'city_permanent_residence': serializer.validated_data.get("city_permanent_residence"),
+                    'postal_code_permanent_residence': serializer.validated_data.get("postal_code_permanent_residence"),
+                    'post_permanent_residence': serializer.validated_data.get("post_permanent_residence"),
+                    'municipal_commune_permanent_residence': serializer.validated_data.get(
+                        "municipal_commune_permanent_residence"),
+                    'voivodeship_permanent_residence': serializer.validated_data.get("voivodeship_permanent_residence"),
+                    'country_permanent_residence': serializer.validated_data.get("country_permanent_residence"),
+                    'street_permanent_residence': serializer.validated_data.get("street_permanent_residence"),
+                    'house_number_permanent_residence': serializer.validated_data.get(
+                        "house_number_permanent_residence"),
+                    'flat_number_permanent_residence': serializer.validated_data.get("flat_number_permanent_residence"),
+                    'mobile_number_permanent_residence': serializer.validated_data.get(
+                        "mobile_number_permanent_residence"),
+                    'city_second_residence': serializer.validated_data.get("city_second_residence"),
+                    'postal_code_second_residence': serializer.validated_data.get("postal_code_second_residence"),
+                    'post_second_residence': serializer.validated_data.get("post_second_residence"),
+                    'municipal_commune_second_residence': serializer.validated_data.get(
+                        "municipal_commune_second_residence"),
+                    'voivodeship_second_residence': serializer.validated_data.get("voivodeship_second_residence"),
+                    'country_second_residence': serializer.validated_data.get("country_second_residence"),
+                    'street_second_residence': serializer.validated_data.get("street_second_residence"),
+                    'house_number_second_residence': serializer.validated_data.get("house_number_second_residence"),
+                    'flat_number_second_residence': serializer.validated_data.get("flat_number_second_residence"),
+                    'mobile_number_second_residence': serializer.validated_data.get("mobile_number_second_residence"),
+                    'city_correspondence_residence': serializer.validated_data.get("city_correspondence_residence"),
+                    'postal_code_correspondence_residence': serializer.validated_data.get(
+                        "postal_code_correspondence_residence"),
+                    'post_correspondence_residence': serializer.validated_data.get("post_correspondence_residence"),
+                    'municipal_commune_correspondence_residence': serializer.validated_data.get(
+                        "municipal_commune_correspondence_residence"),
+                    'voivodeship_correspondence_residence': serializer.validated_data.get(
+                        "voivodeship_correspondence_residence"),
+                    'country_correspondence_residence': serializer.validated_data.get(
+                        "country_correspondence_residence"),
+                    'street_correspondence_residence': serializer.validated_data.get("street_correspondence_residence"),
+                    'house_number_correspondence_residence': serializer.validated_data.get(
+                        "house_number_correspondence_residence"),
+                    'flat_number_correspondence_residence': serializer.validated_data.get(
+                        "flat_number_correspondence_residence"),
+                    'mobile_number_correspondence_residence': serializer.validated_data.get(
+                        "mobile_number_correspondence_residence"),
+                    'correspondence_address': serializer.validated_data.get("correspondence_address"),
+                    'tax_office': serializer.validated_data.get("tax_office"),
+                    'annual_settlement_address': serializer.validated_data.get("annual_settlement_address"),
                     'nfz_branch': serializer.validated_data.get("nfz_branch"),
                     'id_data': serializer.validated_data.get("id_data"),
                     'id_given_by': serializer.validated_data.get("id_given_by"),
