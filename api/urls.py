@@ -19,7 +19,9 @@ from .views import (SchedulerView,
                     HolidayPlansView,
                     ApprovedHolidayRequestsView,
                     DataChangeRequestListView,
-                    CreateDataChangeRequestView)
+                    CreateDataChangeRequestView,
+                    ApproveDataChangeRequestView,
+                    RejectDataChangeRequestView)
 
 urlpatterns = [
     path('', SchedulerView.as_view()),
@@ -42,5 +44,7 @@ urlpatterns = [
     path('all_holiday_types', HolidayTypeView.as_view(), name='all_holiday_types'),
     path('all_notifications', NotificationView.as_view(), name='all_notifications'),
     path('all_data_change_requests', DataChangeRequestListView.as_view(), name='all_data_change_requests'),
-    path('create_data_change_request', CreateDataChangeRequestView.as_view(), name='create_data_change_request')
+    path('create_data_change_request', CreateDataChangeRequestView.as_view(), name='create_data_change_request'),
+    path('approve_data_change_request/<str:pk>', ApproveDataChangeRequestView.as_view(), name='approve_data_change_request'),
+    path('reject_data_change_request/<str:pk>', RejectDataChangeRequestView.as_view(), name='reject_data_change_request'),
 ]

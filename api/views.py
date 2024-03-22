@@ -476,6 +476,7 @@ class CreateDataChangeRequestView(APIView):
                     'id_data': serializer.validated_data.get("id_data"),
                     'id_given_by': serializer.validated_data.get("id_given_by"),
                     'id_date': serializer.validated_data.get("id_date"),
+                    'approved': False,
                 }
 
                 data_change_request = DataChangeRequest.objects.create(**data)
@@ -493,3 +494,60 @@ class CreateDataChangeRequestView(APIView):
             return Response({"error": ve.detail}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# TODO: MODIFY
+class ApprovedDataChangeRequestsView(generics.ListAPIView):
+    serializer_class = DataChangeRequestSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        approved_requests = DataChangeRequest.objects.filter(approved=True)
+        return approved_requests
+
+
+class ApproveDataChangeRequestView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_object(self, pk):
+        try:
+            return DataChangeRequest.objects.get(pk=pk)
+        except DataChangeRequest.DoesNotExist:
+            raise Http404
+
+    def patch(self, request, pk):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+        data_change_request = self.get_object(pk)
+
+        if data_change_request.approved:
+            return Response({'detail': 'Holiday request already approved.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        data_change_request.approved = True
+        data_change_request.save()
+
+        serializer = DataChangeRequestSerializer(data_change_request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RejectDataChangeRequestView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_object(self, pk):
+        try:
+            return DataChangeRequest.objects.get(pk=pk)
+        except DataChangeRequest.DoesNotExist:
+            raise Http404
+
+    def patch(self, request, pk):
+        data_change_request = self.get_object(pk)
+
+        if not data_change_request.approved:
+            return Response({'detail': 'Holiday request already rejected.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        data_change_request.approved = False
+        data_change_request.save()
+
+        serializer = DataChangeRequestSerializer(data_change_request)
+        return Response(serializer.data, status=status.HTTP_200_OK)

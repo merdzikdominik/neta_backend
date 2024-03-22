@@ -178,6 +178,7 @@ class DataChangeRequest(models.Model):
     id_data = models.TextField(max_length=30, blank=True, default='')
     id_given_by = models.TextField(max_length=50, blank=True, default='')
     id_date = models.TextField(default=datetime.date.today)
+    approved = models.BooleanField(default=False)
 
     def __str__(self):
         return self.surname

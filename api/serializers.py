@@ -229,6 +229,7 @@ class DataChangeRequestSerializer(serializers.Serializer):
     id_data = serializers.CharField(required=False, allow_blank=True, default='')
     id_given_by = serializers.CharField(required=False, allow_blank=True, default='')
     id_date = serializers.CharField(required=False, allow_blank=True, default='')
+    approved = serializers.BooleanField(default=False)
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
