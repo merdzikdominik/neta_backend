@@ -496,7 +496,6 @@ class CreateDataChangeRequestView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# TODO: MODIFY
 class ApprovedDataChangeRequestsView(generics.ListAPIView):
     serializer_class = DataChangeRequestSerializer
     authentication_classes = [TokenAuthentication]
@@ -551,3 +550,101 @@ class RejectDataChangeRequestView(APIView):
 
         serializer = DataChangeRequestSerializer(data_change_request)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UpdateUserDataView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        approved_requests = DataChangeRequest.objects.filter(approved=True)
+
+        for notification in approved_requests:
+            user_email = notification.user.email
+            try:
+                user = CustomUser.objects.get(email=user_email)
+
+                if notification.surname:
+                    user.last_name = notification.surname
+                if notification.city_permanent_residence:
+                    user.city_permanent_residence = notification.city_permanent_residence
+                if notification.postal_code_permanent_residence:
+                    user.postal_code_permanent_residence = notification.postal_code_permanent_residence
+                if notification.post_permanent_residence:
+                    user.post_permanent_residence = notification.post_permanent_residence
+                if notification.municipal_commune_permanent_residence:
+                    user.municipal_commune_permanent_residence = notification.municipal_commune_permanent_residence
+                if notification.voivodeship_permanent_residence:
+                    user.voivodeship_permanent_residence = notification.voivodeship_permanent_residence
+                if notification.country_permanent_residence:
+                    user.country_permanent_residence = notification.country_permanent_residence
+                if notification.street_permanent_residence:
+                    user.street_permanent_residence = notification.street_permanent_residence
+                if notification.house_number_permanent_residence:
+                    user.house_number_permanent_residence = notification.house_number_permanent_residence
+                if notification.flat_number_permanent_residence:
+                    user.flat_number_permanent_residence = notification.flat_number_permanent_residence
+                if notification.mobile_number_permanent_residence:
+                    user.mobile_number_permanent_residence = notification.mobile_number_permanent_residence
+
+                if notification.city_second_residence:
+                    user.city_second_residence = notification.city_second_residence
+                if notification.postal_code_second_residence:
+                    user.postal_code_second_residence = notification.postal_code_second_residence
+                if notification.post_second_residence:
+                    user.post_second_residence = notification.post_second_residence
+                if notification.municipal_commune_second_residence:
+                    user.municipal_commune_second_residence = notification.municipal_commune_second_residence
+                if notification.voivodeship_second_residence:
+                    user.voivodeship_second_residence = notification.voivodeship_second_residence
+                if notification.country_second_residence:
+                    user.country_second_residence = notification.country_second_residence
+                if notification.street_second_residence:
+                    user.street_second_residence = notification.street_second_residence
+                if notification.house_number_second_residence:
+                    user.house_number_second_residence = notification.house_number_second_residence
+                if notification.flat_number_second_residence:
+                    user.flat_number_second_residence = notification.flat_number_second_residence
+                if notification.mobile_number_second_residence:
+                    user.mobile_number_second_residence = notification.mobile_number_second_residence
+
+                if notification.city_correspondence_residence:
+                    user.city_correspondence = notification.city_correspondence_residence
+                if notification.postal_code_correspondence_residence:
+                    user.postal_code_correspondence = notification.postal_code_correspondence_residence
+                if notification.post_correspondence_residence:
+                    user.post_correspondence = notification.post_correspondence_residence
+                if notification.municipal_commune_correspondence_residence:
+                    user.municipal_commune_correspondence = notification.municipal_commune_correspondence_residence
+                if notification.voivodeship_correspondence_residence:
+                    user.voivodeship_correspondence = notification.voivodeship_correspondence_residence
+                if notification.country_correspondence_residence:
+                    user.country_correspondence = notification.country_correspondence_residence
+                if notification.street_correspondence_residence:
+                    user.street_correspondence = notification.street_correspondence_residence
+                if notification.house_number_correspondence_residence:
+                    user.house_number_correspondence = notification.house_number_correspondence_residence
+                if notification.flat_number_correspondence_residence:
+                    user.flat_number_correspondence = notification.flat_number_correspondence_residence
+                if notification.mobile_number_correspondence_residence:
+                    user.mobile_number_correspondence = notification.mobile_number_correspondence_residence
+
+                if notification.tax_office:
+                    user.tax_office = notification.tax_office
+                if notification.correspondence_address:
+                    user.correspondence_address = notification.correspondence_address
+                if notification.annual_settlement_address:
+                    user.annual_settlement_address = notification.annual_settlement_address
+                if notification.nfz_branch:
+                    user.nfz_branch = notification.nfz_branch
+                if notification.id_data:
+                    user.id_data = notification.id_data
+                if notification.id_given_by:
+                    user.id_given_by = notification.id_given_by
+                if notification.id_date:
+                    user.id_date = notification.id_date
+            except CustomUser.DoesNotExist:
+                continue
+
+            user.save()
+
+        return Response({'success': True})
