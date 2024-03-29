@@ -93,8 +93,6 @@ class HolidayPlansView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-from rest_framework.authtoken.models import Token
-
 class RegisterAPI(generics.GenericAPIView):
     serializer_class = RegisterSerializer
 
@@ -114,7 +112,6 @@ class RegisterAPI(generics.GenericAPIView):
             'employment_end_date': request.data.get('employment_end_date', ''),
             'role': request.data.get('role', ''),
             'education': request.data.get('education', ''),
-            # 'user_residence_data': request.data.get('user_residence_data', ''),
             'correspondence_address': request.data.get('correspondence_address', ''),
             'tax_office': request.data.get('tax_office', ''),
             'annual_settlement_address': request.data.get('annual_settlement_address', ''),

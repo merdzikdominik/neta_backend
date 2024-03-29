@@ -97,7 +97,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             employment_end_date=validated_data.get('employment_end_date', ''),
             role=validated_data.get('role', ''),
             education=validated_data.get('education', ''),
-            # user_residence_data=validated_data.get('user_residence_data', ''),
             correspondence_address=validated_data.get('correspondence_address', ''),
             tax_office=validated_data.get('tax_office', ''),
             annual_settlement_address=validated_data.get('annual_settlement_address', ''),
