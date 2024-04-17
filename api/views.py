@@ -586,6 +586,27 @@ class CreateDataChangeRequestView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class DataChangeRequestDeleteView(generics.DestroyAPIView):
+    serializer_class = DataChangeRequestSerializer
+    queryset = DataChangeRequest.objects.all()
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return DataChangeRequest.objects.get(pk=pk)
+        except DataChangeRequest.DoesNotExist:
+            raise Http404
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object(kwargs.get('pk'))
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except DataChangeRequest.DoesNotExist:
+            return Response({"error": "Wniosek nie istnieje."}, status=status.HTTP_404_NOT_FOUND)
+
+
 class ApprovedDataChangeRequestsView(generics.ListAPIView):
     serializer_class = DataChangeRequestSerializer
     authentication_classes = [TokenAuthentication]
