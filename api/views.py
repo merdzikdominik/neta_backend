@@ -17,7 +17,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework import status, generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from knox.views import APIView as KnoxApiView
-from .models import Scheduler, HolidayRequest, CustomUser, HolidayType, Notification, HolidayPlan, DataChangeRequest
+from .models import Scheduler, HolidayRequest, CustomUser, HolidayType, Notification, HolidayPlan, DataChangeRequest, HolidayRequestPlan
 from .serializers import (SchedulerSerializer,
                           CreateScheduleSerializer,
                           UserSerializer,
@@ -27,7 +27,7 @@ from .serializers import (SchedulerSerializer,
                           CustomUserDataSerializer,
                           HolidayTypeSerializer,
                           NotificationSerializer,
-                          HolidayPlanSerializer,
+                          HolidayRequestPlanSerializer,
                           DataChangeRequestSerializer
                           )
 from knox.models import AuthToken
@@ -76,21 +76,56 @@ class ClearScheduleView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class HolidayPlansView(APIView):
+class CreateHolidayPlanRequest(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            user = request.user
+
+            serializer = HolidayRequestPlanSerializer(data=request.data)
+
+            if serializer.is_valid():
+                user_data = request.data.get('user', {})
+                user_instance = CustomUser.objects.get(email=user_data.get('email', ''))
+
+                data = {
+                    'user': user_instance,
+                    'start_date': serializer.validated_data.get("start_date"),
+                    'end_date': serializer.validated_data.get("end_date"),
+                    'difference_in_days': serializer.validated_data.get("difference_in_days"),
+                    'selected_holiday_type': serializer.validated_data.get("selected_holiday_type"),
+                    'message': f"Plan urlopu typu {serializer.validated_data.get('selected_holiday_type')} zaczyna się od {serializer.validated_data.get('start_date')} i kończy {serializer.validated_data.get('end_date')}",
+                    'approved': False,
+                    'color_hex': serializer.validated_data.get("color_hex", "")
+                }
+
+                holiday_plan_request = HolidayRequestPlan.objects.create(**data)
+
+                return Response(
+                    HolidayRequestPlanSerializer(holiday_plan_request).data,
+                    status=status.HTTP_201_CREATED
+                )
+            else:
+                return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except CustomUser.DoesNotExist:
+            return Response({"error": "Użytkownik o podanym adresie e-mail nie istnieje."},
+                            status=status.HTTP_404_NOT_FOUND)
+        except ValidationError as ve:
+            return Response({"error": ve.detail}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class HolidayRequestPlansView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, format=None):
-        all_dates = HolidayPlan.objects.all()
-        serializer = HolidayPlanSerializer(all_dates, many=True)
+        all_dates = HolidayRequestPlan.objects.all()
+        serializer = HolidayRequestPlanSerializer(all_dates, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, format=None):
-        serializer = HolidayPlanSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RegisterAPI(generics.GenericAPIView):
@@ -215,6 +250,8 @@ class ChangePasswordView(APIView):
             return Response({"detail": "Hasło zostało pomyślnie zmienione."}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class UserInfoAPI(APIView):
     authentication_classes = [TokenAuthentication, ]
     permission_classes = [IsAuthenticated]
@@ -289,6 +326,16 @@ class ApprovedHolidayRequestsView(generics.ListAPIView):
         return approved_requests
 
 
+class ApprovedHolidayPlansRequestsView(generics.ListAPIView):
+    serializer_class = HolidayRequestPlanSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        approved_requests = HolidayRequestPlan.objects.filter(approved=True)
+        return approved_requests
+
+
 class UserHolidayRequestsView(generics.ListAPIView):
     serializer_class = HolidayRequestSerializer
     authentication_classes = [TokenAuthentication]
@@ -335,6 +382,52 @@ class RejectHolidayRequestView(APIView):
         try:
             return HolidayRequest.objects.get(pk=pk)
         except HolidayRequest.DoesNotExist:
+            raise Http404
+
+    def patch(self, request, pk):
+        holiday_request = self.get_object(pk)
+
+        if not holiday_request.approved:
+            return Response({'detail': 'Holiday request already rejected.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        holiday_request.approved = False
+        holiday_request.save()
+
+        serializer = HolidayRequestSerializer(holiday_request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ApproveHolidayPlanRequestView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_object(self, pk):
+        try:
+            return HolidayRequestPlan.objects.get(pk=pk)
+        except HolidayRequestPlan.DoesNotExist:
+            raise Http404
+
+    def patch(self, request, pk):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+        holiday_request = self.get_object(pk)
+
+        if holiday_request.approved:
+            return Response({'detail': 'Holiday request already approved.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        holiday_request.approved = True
+        holiday_request.save()
+
+        serializer = HolidayRequestPlanSerializer(holiday_request)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RejectHolidayRequestPlanView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_object(self, pk):
+        try:
+            return HolidayRequestPlan.objects.get(pk=pk)
+        except HolidayRequestPlan.DoesNotExist:
             raise Http404
 
     def patch(self, request, pk):
