@@ -263,7 +263,7 @@ class UserInfoAPI(APIView):
 
 class AllUsersAPI(ListAPIView):
     authentication_classes = [TokenAuthentication, ]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
 
@@ -343,7 +343,7 @@ class UserHolidayRequestsView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        print("Current User:", user)  # Debugging line
+        print("Current User:", user)
         return HolidayRequest.objects.filter(user=user)
 
     def perform_create(self, serializer):

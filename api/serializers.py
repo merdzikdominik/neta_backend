@@ -38,7 +38,6 @@ class RegisterSerializer(serializers.ModelSerializer):
                   'employment_end_date',
                   'role',
                   'education',
-                  # 'user_residence_data',
                   'correspondence_address',
                   'tax_office',
                   'annual_settlement_address',
